@@ -50,11 +50,36 @@ class OwnerControllerTest {
     }
 
     @Test
+    void testUpdateOwnerPostValid() throws Exception {
+        mockMvc.perform(post("/owners/{ownerId}/edit", 1)
+                        .param("firstName", "Jimmy")
+                        .param("lastName", "Buffer")
+                        .param("Address", "123 Duval St")
+                        .param("city", "Key West")
+                        .param("telephone", "3151231234"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/owners/{ownerId}"));
+    }
+
+    @Test
+    void testUpdateOwnerNotPostValid() throws Exception {
+        mockMvc.perform(post("/owners/{ownerId}/edit", 1)
+                        .param("firstName", "Jimmy")
+                        .param("lastName", "Buffer")
+                        .param("address", "123 Duval St"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeHasErrors("owner"))
+                .andExpect(model().attributeHasFieldErrors("owner", "city"))
+                .andExpect(model().attributeHasFieldErrors("owner", "telephone"))
+                .andExpect(view().name(OwnerController.VIEWS_OWNER_CREATE_OR_UPDATE_FORM));
+    }
+
+    @Test
     void testNewOwnerPostValid() throws Exception {
         mockMvc.perform(post("/owners/new")
                         .param("firstName", "Jimmy")
                         .param("lastName", "Buffer")
-                        .param("Address", "123 Duval St")
+                        .param("address", "123 Duval St")
                         .param("city", "Key West")
                         .param("telephone", "3151231234"))
                 .andExpect(status().is3xxRedirection());
